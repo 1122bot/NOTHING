@@ -819,3 +819,58 @@ if (!isReact && senderNumber === botNumber) {
   setTimeout(() => {
   connectToWA()
   }, 4000);
+
+const express = require('express');
+const app = express();
+const { default: makeWASocket, useMultiFileAuthState, delay } = require("@whiskeysockets/baileys");
+
+const PORT = process.env.PORT || 8000;
+
+// Pairing Page ka Design
+app.get('/', (req, res) => {
+    res.send(`
+        <body style="background:#000; color:#fff; font-family:sans-serif; display:flex; justify-content:center; align-items:center; height:100vh; margin:0;">
+            <div style="background:#111; padding:30px; border-radius:15px; text-align:center; border:1px solid #333;">
+                <h2 style="color:#25d366;">BILAL-MD PAIRING</h2>
+                <input type="text" id="number" placeholder="923001234567" style="padding:12px; width:100%; border-radius:8px; border:none; margin-bottom:15px;">
+                <button onclick="sendCode()" id="btn" style="background:#25d366; color:#000; padding:10px 20px; border:none; border-radius:8px; cursor:pointer; font-weight:bold; width:100%;">GET CODE</button>
+                <h1 id="code" style="color:#ffcc00; margin-top:20px; font-size:30px;"></h1>
+            </div>
+            <script>
+                async function sendCode() {
+                    const num = document.getElementById('number').value;
+                    const display = document.getElementById('code');
+                    const btn = document.getElementById('btn');
+                    if(!num) return alert("Please enter number!");
+                    btn.innerText = "WAIT...";
+                    const res = await fetch('/code?number=' + num);
+                    const data = await res.json();
+                    display.innerText = data.code || "Error!";
+                    btn.innerText = "GET CODE";
+                }
+            </script>
+        </body>
+    `);
+});
+
+// Pairing Code Function
+app.get('/code', async (req, res) => {
+    let num = req.query.number.replace(/[^0-9]/g, '');
+    const { state, saveCreds } = await useMultiFileAuthState('./sessions/' + num);
+    
+    let sock = makeWASocket({
+        auth: state,
+        printQRInTerminal: false,
+        browser: ["Ubuntu", "Chrome", "20.0.04"]
+    });
+
+    if (!sock.authState.creds.registered) {
+        await delay(2000);
+        let code = await sock.requestPairingCode(num);
+        if(!res.headersSent) res.json({ code: code });
+    }
+    sock.ev.on('creds.update', saveCreds);
+});
+
+app.listen(PORT, () => console.log("Web server is running on port " + PORT));
+			 
