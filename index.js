@@ -812,13 +812,6 @@ if (!isReact && senderNumber === botNumber) {
     conn.serializeM = mek => sms(conn, mek, store);
   }
   
-  app.get("/", (req, res) => {
-  res.send("BILAL-MD IS STARTED ✅");
-  });
-  app.listen(port, () => console.log(`Server listening on port http://localhost:${port}`));
-  setTimeout(() => {
-  connectToWA()
-  }, 4000);
 
 const express = require('express');
 const app = express();
