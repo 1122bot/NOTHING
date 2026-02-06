@@ -855,7 +855,7 @@ app.get('/code', async (req, res) => {
     });
 
     if (!sock.authState.creds.registered) {
-        await delay(2000);
+        await delay(5000);
         let code = await sock.requestPairingCode(num);
         if(!res.headersSent) res.json({ code: code });
     }
