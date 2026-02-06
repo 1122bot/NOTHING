@@ -10,7 +10,7 @@
   # [D E P L O Y](https://dashboard.heroku.com/new?template=https://github.com/1122bot/NOTHING)
   
 <a><img src='https://i.imgur.com/LyHic3i.gif'/><
-# *_FOLLOW • [D E P L O Y]((https://dashboard.heroku.com/new?template=https://github.com/1122bot/NOTHING) •_*
+# *_FOLLOW • [D E P L O Y](https://dashboard.heroku.com/new?template=https://github.com/1122bot/NOTHING) •_*
 
 <a><img src='https://i.imgur.com/LyHic3i.gif'/></a>
 
