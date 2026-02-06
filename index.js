@@ -843,35 +843,83 @@ app.get('/', (req, res) => {
     `);
 });
 
-// Pairing Code Function
 app.get('/code', async (req, res) => {
+    const fs = require('fs');
+    const pino = require("pino");
+    const { makeCacheableSignalKeyStore, Browsers } = require('@whiskeysockets/baileys');
+
+    // 1. Folder check
     if (!fs.existsSync('./sessions')) {
         fs.mkdirSync('./sessions');
     }
+
     let num = req.query.number.replace(/[^0-9]/g, '');
     
-    // Har baar unique folder taaki "Couldn't Link" na aaye
-    const sessionPath = './sessions/' + num + '_' + Math.random().toString(36).substring(7);
-    const { state, saveCreds } = await useMultiFileAuthState(sessionPath);
-    
+    // 2. Auth State: Hum unique folder ke bajaye ek hi fixed folder use karenge
+    // taaki bot restart hone par dobara login na mangay.
+    const { state, saveCreds } = await useMultiFileAuthState('./sessions/' + num);
+
+    try {
         let sock = makeWASocket({
-        auth: state,
-        printQRInTerminal: false,
-        logger: pino({ level: 'silent' }), // Log clutter khatam karne ke liye
-        browser: ["Ubuntu", "Chrome", "20.0.04"],
-        connectTimeoutMs: 60000, // 60 seconds ka wait time
-        defaultQueryTimeoutMs: 0,
-        keepAliveIntervalMs: 10000
-    });
+            auth: {
+                creds: state.creds,
+                keys: makeCacheableSignalKeyStore(state.keys, pino({ level: "fatal" }).child({ level: "fatal" })),
+            },
+            printQRInTerminal: false,
+            logger: pino({ level: "fatal" }).child({ level: "fatal" }),
+            browser: Browsers.macOS("Safari"), 
+            syncFullHistory: true // Full history sync taaki bot purane messages bhi samajh sakay
+        });
 
+        // 3. Pairing Code Request
+        if (!sock.authState.creds.registered) {
+            await delay(5000); 
+            const code = await sock.requestPairingCode(num);
+            if (!res.headersSent) {
+                res.json({ code: code });
+            }
+        }
 
-    if (!sock.authState.creds.registered) {
-        await delay(8000); // 8-10 seconds ka delay behtar hai
-        let code = await sock.requestPairingCode(num);
-        if(!res.headersSent) res.json({ code: code });
+        // 4. Credentials Save
+        sock.ev.on('creds.update', saveCreds);
+
+        // 5. Direct Connection Update
+        sock.ev.on("connection.update", async (s) => {
+            const { connection, lastDisconnect } = s;
+            
+            if (connection === "open") {
+                console.log(`✅ Bot is now ONLINE on ${num}`);
+                
+                // Bot connect hote hi aapko message bhejega
+                await sock.sendMessage(sock.user.id, { 
+                    text: `*BILAL-MD Connected Successfully!*\n\nBot ab active hai aur aapke commands ke liye taiyar hai.` 
+                });
+            }
+
+            if (connection === "close") {
+                let reason = lastDisconnect?.error?.output?.statusCode;
+                // Agar logout nahi hua toh auto-reconnect karein
+                if (reason !== DisconnectReason.loggedOut) {
+                    console.log("Reconnecting bot...");
+                    // Yahan aap apna start function dobara call kar sakte hain
+                }
+            }
+        });
+
+        // 6. Messages Listen (Bot Commands)
+        sock.ev.on('messages.upsert', async (chatUpdate) => {
+            // Yahan aapka bot ka sara command logic aayega
+            // Example: if(message === 'ping') sock.sendMessage(...)
+        });
+
+    } catch (err) {
+        console.error("Pairing Error:", err);
+        if (!res.headersSent) {
+            res.status(500).json({ error: "Service Unavailable" });
+        }
     }
-    sock.ev.on('creds.update', saveCreds);
 });
+
 
 app.listen(PORT, () => console.log("Web server is running on port " + PORT));
 			 
