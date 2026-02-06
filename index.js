@@ -813,8 +813,6 @@ if (!isReact && senderNumber === botNumber) {
   }
   
 
-const { default: makeWASocket, useMultiFileAuthState, delay } = require("@whiskeysockets/baileys");
-
 const PORT = process.env.PORT || 8000;
 
 // Pairing Page ka Design
