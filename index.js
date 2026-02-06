@@ -1,6 +1,7 @@
 const {
-  default: makeWASocket,
+    default: makeWASocket,
     useMultiFileAuthState,
+    delay, // <--- Ye line yahan add karein
     DisconnectReason,
     jidNormalizedUser,
     isJidBroadcast,
