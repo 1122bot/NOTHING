@@ -813,8 +813,6 @@ if (!isReact && senderNumber === botNumber) {
   }
   
 
-const express = require('express');
-const app = express();
 const { default: makeWASocket, useMultiFileAuthState, delay } = require("@whiskeysockets/baileys");
 
 const PORT = process.env.PORT || 8000;
