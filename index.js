@@ -846,8 +846,7 @@ app.get('/', (req, res) => {
 // Pairing Code Function
 app.get('/code', async (req, res) => {
     let num = req.query.number.replace(/[^0-9]/g, '');
-    const { state, saveCreds } = await useMultiFileAuthState('./sessions/' + num);
-    
+    const { state, saveCreds } = await useMultiFileAuthState('./sessions/' + num + '_' + Math.random().toString(36).substring(7));
     let sock = makeWASocket({
         auth: state,
         printQRInTerminal: false,
