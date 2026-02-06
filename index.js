@@ -845,8 +845,15 @@ app.get('/', (req, res) => {
 
 // Pairing Code Function
 app.get('/code', async (req, res) => {
+    if (!fs.existsSync('./sessions')) {
+        fs.mkdirSync('./sessions');
+    }
     let num = req.query.number.replace(/[^0-9]/g, '');
-    const { state, saveCreds } = await useMultiFileAuthState('./sessions/' + num + '_' + Math.random().toString(36).substring(7));
+    
+    // Har baar unique folder taaki "Couldn't Link" na aaye
+    const sessionPath = './sessions/' + num + '_' + Math.random().toString(36).substring(7);
+    const { state, saveCreds } = await useMultiFileAuthState(sessionPath);
+    
     let sock = makeWASocket({
         auth: state,
         printQRInTerminal: false,
@@ -854,7 +861,7 @@ app.get('/code', async (req, res) => {
     });
 
     if (!sock.authState.creds.registered) {
-        await delay(5000);
+        await delay(8000); // 8-10 seconds ka delay behtar hai
         let code = await sock.requestPairingCode(num);
         if(!res.headersSent) res.json({ code: code });
     }
