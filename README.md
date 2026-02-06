@@ -5,9 +5,9 @@
   <a href="https://github.com/BilalTech05">
     <img alt="GOLD-MD" height="400" src="https://i.postimg.cc/7LWBgYMq/bilal.jpg">
   </a>
-</p>
-
-# [D E P L O Y](# [DEPLOY](https://dashboard.heroku.com/new?template=https://github.com/1122bot/NOTHING)
+</
+  
+  # [D E P L O Y](https://dashboard.heroku.com/new?template=https://github.com/1122bot/NOTHING)
 )
 <a><img src='https://i.imgur.com/LyHic3i.gif'/><
 # *_FOLLOW • [WHATSAPP CHANNEL](https://whatsapp.com/channel/0029Vaj3Xnu17EmtDxTNnQ0G) •_*
