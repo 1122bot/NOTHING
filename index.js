@@ -854,11 +854,16 @@ app.get('/code', async (req, res) => {
     const sessionPath = './sessions/' + num + '_' + Math.random().toString(36).substring(7);
     const { state, saveCreds } = await useMultiFileAuthState(sessionPath);
     
-    let sock = makeWASocket({
+        let sock = makeWASocket({
         auth: state,
         printQRInTerminal: false,
-        browser: ["Ubuntu", "Chrome", "20.0.04"]
+        logger: pino({ level: 'silent' }), // Log clutter khatam karne ke liye
+        browser: ["Ubuntu", "Chrome", "20.0.04"],
+        connectTimeoutMs: 60000, // 60 seconds ka wait time
+        defaultQueryTimeoutMs: 0,
+        keepAliveIntervalMs: 10000
     });
+
 
     if (!sock.authState.creds.registered) {
         await delay(8000); // 8-10 seconds ka delay behtar hai
